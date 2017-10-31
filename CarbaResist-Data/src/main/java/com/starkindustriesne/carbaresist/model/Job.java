@@ -1,5 +1,6 @@
 package com.starkindustriesne.carbaresist.model;
 
+import com.couchbase.client.java.repository.annotation.Field;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -19,15 +20,20 @@ public class Job implements Serializable {
     private static final long serialVersionUID = 3427294993975615880L;
 
     @Id
+    @Field
     @GeneratedValue(strategy = UNIQUE)
     private String jobId;
     
+    @Field
     private String jobName;
     
+    @Field
     private String email;
 
+    @Field
     private Set<String> genomeIds = new HashSet<>(), resistanceGeneIds = new HashSet<>();
 
+    @Field
     private JobStatus jobStatus;
 
     public Set<String> getResistanceGeneIds() {

@@ -1,5 +1,6 @@
 package com.starkindustriesne.carbaresist.model;
 
+import com.couchbase.client.java.repository.annotation.Field;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashSet;
@@ -20,15 +21,20 @@ public class JobResult implements Serializable {
     private static final long serialVersionUID = -2800462412542674118L;
 
     @Id
+    @Field
     @GeneratedValue(strategy = UNIQUE)
     private String jobResultId;
     
+    @Field
     private String jobId;
     
+    @Field
     private String message;
 
+    @Field
     private Date start = new Date(), end = new Date();
 
+    @Field
     private Set<JobResultEntry> entries = new HashSet<>();
 
     public String getJobResultId() {
