@@ -71,7 +71,7 @@ public class JobSubmissionController {
         return jobResultRepo.findByJobId(jobId);
     }
     
-    @GetMapping("/email/{email}")
+    @GetMapping("/email/{email:.+}")
     public List<Job> getByEmail(@PathVariable("email") String email,
             @RequestParam(value = "status", required = false) JobStatus status) {
         if(status != null) {
