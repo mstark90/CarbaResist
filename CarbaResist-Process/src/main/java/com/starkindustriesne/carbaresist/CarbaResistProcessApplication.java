@@ -46,7 +46,7 @@ public class CarbaResistProcessApplication {
 
     @Bean
     public Queue queue() {
-        return new Queue(queueName, false);
+        return new Queue(queueName, false, true, true);
     }
 
     @Bean
