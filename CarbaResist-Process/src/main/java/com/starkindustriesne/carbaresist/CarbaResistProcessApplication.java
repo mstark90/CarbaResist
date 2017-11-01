@@ -80,7 +80,7 @@ public class CarbaResistProcessApplication {
     }
 
     @Bean
-    MessageListenerAdapter listenerAdapter() {
+    public MessageListenerAdapter listenerAdapter() {
         return new MessageListenerAdapter(jobProcessor(), "processJob");
     }
 

@@ -37,11 +37,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.starkindustriesne</groupId>
-            <artifactId>CarbaResist-Data</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
             <groupId>org.biojava</groupId>
             <artifactId>biojava-core</artifactId>
             <version>4.2.9</version>
@@ -55,6 +50,11 @@
             <groupId>org.biojava</groupId>
             <artifactId>biojava-genome</artifactId>
             <version>4.2.9</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>CarbaResist-Data</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

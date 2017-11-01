@@ -4,61 +4,75 @@ import java.io.Serializable;
 
 public class JobResultEntry implements Serializable {
 
-	/**
-	 * Generated version ID.
-	 */
-	private static final long serialVersionUID = 8789831573078632924L;
+    /**
+     * Generated version ID.
+     */
+    private static final long serialVersionUID = 8789831573078632924L;
 
-	
-	private String entryId, jobResultId, genomeId, resistanceGeneId, alignment;
-	
-	private int score = 0;
+    private String entryId, jobResultId, genomeId, resistanceGeneId, alignment,
+            message;
 
-	public String getAlignment() {
-		return alignment;
-	}
+    private int score = 0;
 
-	public void setAlignment(String alignment) {
-		this.alignment = alignment;
-	}
+    public String getAlignment() {
+        return alignment;
+    }
 
-	public String getResistanceGeneId() {
-		return resistanceGeneId;
-	}
+    public void setAlignment(String alignment) {
+        this.alignment = alignment;
+    }
 
-	public void setResistanceGeneId(String resistanceGeneId) {
-		this.resistanceGeneId = resistanceGeneId;
-	}
+    public String getResistanceGeneId() {
+        return resistanceGeneId;
+    }
 
-	public String getGenomeId() {
-		return genomeId;
-	}
+    public void setResistanceGeneId(String resistanceGeneId) {
+        this.resistanceGeneId = resistanceGeneId;
+    }
 
-	public void setGenomeId(String genomeId) {
-		this.genomeId = genomeId;
-	}
+    public String getGenomeId() {
+        return genomeId;
+    }
 
-	public String getJobResultId() {
-		return jobResultId;
-	}
+    public void setGenomeId(String genomeId) {
+        this.genomeId = genomeId;
+    }
 
-	public void setJobResultId(String jobResultId) {
-		this.jobResultId = jobResultId;
-	}
+    public String getJobResultId() {
+        return jobResultId;
+    }
 
-	public String getEntryId() {
-		return entryId;
-	}
+    public void setJobResultId(String jobResultId) {
+        this.jobResultId = jobResultId;
+    }
 
-	public void setEntryId(String entryId) {
-		this.entryId = entryId;
-	}
+    public String getEntryId() {
+        return entryId;
+    }
 
-	public int getScore() {
-		return score;
-	}
+    public void setEntryId(String entryId) {
+        this.entryId = entryId;
+    }
 
-	public void setScore(int score) {
-		this.score = score;
-	}
+    public int getScore() {
+        return score;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
+    }
+
+    /**
+     * @return the message
+     */
+    public String getMessage() {
+        return message;
+    }
+
+    /**
+     * @param message the message to set
+     */
+    public void setMessage(String message) {
+        this.message = message;
+    }
 }

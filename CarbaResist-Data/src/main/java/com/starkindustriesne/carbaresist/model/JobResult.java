@@ -36,6 +36,9 @@ public class JobResult implements Serializable {
 
     @Field
     private Set<JobResultEntry> entries = new HashSet<>();
+    
+    @Field
+    private int entryCount;
 
     public String getJobResultId() {
         return jobResultId;
@@ -95,5 +98,19 @@ public class JobResult implements Serializable {
      */
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    /**
+     * @return the entryCount
+     */
+    public int getEntryCount() {
+        return entryCount;
+    }
+
+    /**
+     * @param entryCount the entryCount to set
+     */
+    public void setEntryCount(int entryCount) {
+        this.entryCount = entryCount;
     }
 }

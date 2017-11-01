@@ -5,24 +5,16 @@
  */
 package com.starkindustriesne.carbaresist.services;
 
-import com.starkindustriesne.carbaresist.model.Job;
-import com.starkindustriesne.carbaresist.model.JobResult;
 import com.starkindustriesne.carbaresist.model.JobResultEntry;
-import com.starkindustriesne.carbaresist.model.JobStatus;
-import com.starkindustriesne.carbaresist.repositories.JobRepository;
-import com.starkindustriesne.carbaresist.repositories.JobResultRepository;
+import com.starkindustriesne.carbaresist.model.JobTask;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Date;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.PostConstruct;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.log4j.Logger;
 import org.biojava.nbio.alignment.Alignments;
 import org.biojava.nbio.alignment.Alignments.PairwiseSequenceAlignerType;
 import org.biojava.nbio.alignment.SimpleGapPenalty;
@@ -46,34 +38,26 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class JobProcessorService {
-
-    @Autowired
-    private JobRepository jobRepo;
-
-    @Autowired
-    private JobResultRepository jobResultRepository;
+    
+    private static final Logger logger = Logger.getLogger(JobProcessorService.class);
 
     @Autowired
     private RabbitTemplate messageSender;
 
     @Autowired
-    private String queueName;
+    private String finishedQueue;
     
     @Autowired
     private String aaSubstitutionMatrix;
-
-    private HttpClient httpClient;
-
+    
     private TranscriptionEngine transcriptionEngine;
     
     private SubstitutionMatrix<AminoAcidCompound> matrix;
     
     private GapPenalty gapPenalty;
-
+    
     @PostConstruct
     public void init() {
-        httpClient = HttpClientBuilder.create().build();
-
         TranscriptionEngine.Builder teBuilder = new TranscriptionEngine.Builder();
 
         teBuilder.table(11).initMet(true).trimStop(false);
@@ -84,60 +68,42 @@ public class JobProcessorService {
         
         gapPenalty = new SimpleGapPenalty();
     }
-
-    private Map<String, DNASequence> entrezGenomeSearch(Iterable<String> genomeIds) throws IOException {
-        String url = String.format("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?"
-                + "db=nuccore&id=%s&rettype=fasta&retmode=text", String.join(",", genomeIds));
-
-        HttpGet request = new HttpGet(url);
-
-        HttpResponse response = httpClient.execute(request);
-        HttpEntity entity = response.getEntity();
+    
+    private InputStream getInputStream(String content) {
+        return new ByteArrayInputStream(content.getBytes(Charset.forName("utf-8")));
+    }
+    
+    private Map<String, DNASequence> parseDNASequence(String fasta) throws IOException {
         Map<String, DNASequence> sequences = null;
 
-        try (InputStream is = entity.getContent()) {
+        try (InputStream is = getInputStream(fasta)) {
             sequences
                     = FastaReaderHelper.readFastaDNASequence(is);
         }
-
+        
         return sequences;
     }
-
-    private Map<String, ProteinSequence> entrezProteinSearch(Iterable<String> resistanceGeneIds) throws IOException {
-        String url = String.format("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?"
-                + "db=protein&id=%s&rettype=fasta&retmode=text", String.join(",", resistanceGeneIds));
-
-        HttpGet request = new HttpGet(url);
-
-        HttpResponse response = httpClient.execute(request);
-        HttpEntity entity = response.getEntity();
+    
+    private Map<String, ProteinSequence> parseProteinSequence(String fasta) throws IOException {
         Map<String, ProteinSequence> sequences = null;
 
-        try (InputStream is = entity.getContent()) {
+        try (InputStream is = getInputStream(fasta)) {
             sequences
                     = FastaReaderHelper.readFastaProteinSequence(is);
         }
-
+        
         return sequences;
     }
 
-    public void processJob(Job job) {
-        if(job.getJobStatus() != JobStatus.SUBMITTED) {
-            return;
-        }
+    public void processJobTask(JobTask job) {
         
-        job.setJobStatus(JobStatus.RUNNING);
-        job = jobRepo.save(job);
-
-        JobResult result = new JobResult();
-        result.setStart(new Date());
-        result.setJobId(job.getJobId());
+        logger.info(String.format("Starting task for job %s", job.getJobId()));
+        
+        JobResultEntry entry = new JobResultEntry();
 
         try {
 
-            result = jobResultRepository.save(result);
-
-            Map<String, DNASequence> genomes = this.entrezGenomeSearch(job.getGenomeIds());
+            Map<String, DNASequence> genomes = this.parseDNASequence(job.getGenomeFasta());
             Map<String, ProteinSequence> processedGenomes = new HashMap<>();
 
             for (Map.Entry<String, DNASequence> genome : genomes.entrySet()) {
@@ -146,7 +112,7 @@ public class JobProcessorService {
             }
 
             Map<String, ProteinSequence> resistanceGenes
-                    = this.entrezProteinSearch(job.getResistanceGeneIds());
+                    = parseProteinSequence(job.getResistanceGeneFasta());
             
             Map<String, ProteinSequence> processedResistanceGenes = new HashMap<>();
             
@@ -157,40 +123,34 @@ public class JobProcessorService {
                         resistanceGene.getValue());
             }
 
-            for (String genomeId : job.getGenomeIds()) {
+            for (String genomeId : processedGenomes.keySet()) {
                 ProteinSequence genome = processedGenomes.get(genomeId);
 
-                for (String resistanceGeneId : job.getResistanceGeneIds()) {
+                for (String resistanceGeneId : processedResistanceGenes.keySet()) {
                     PairwiseSequenceAligner<ProteinSequence, AminoAcidCompound> aligner = Alignments.getPairwiseAligner(genome,
                                     processedResistanceGenes.get(resistanceGeneId),
                                     PairwiseSequenceAlignerType.LOCAL, gapPenalty, matrix);
                     
                     SequencePair<ProteinSequence, AminoAcidCompound> alignment = aligner.getPair();
 
-                    JobResultEntry entry = new JobResultEntry();
+                    
 
-                    entry.setJobResultId(result.getJobResultId());
+                    entry.setJobResultId(job.getJobResultId());
                     entry.setGenomeId(genomeId);
                     entry.setResistanceGeneId(resistanceGeneId);
                     entry.setAlignment(alignment.toString());
                     entry.setScore((int)(aligner.getScore() * 100));
 
-                    result.getEntries().add(entry);
                 }
-
-                job.setJobStatus(JobStatus.DONE);
             }
-
-            result.setEnd(new Date());
-            result.setMessage("The job executed successfully.");
-        } catch (NullPointerException | IOException e) {
-            job.setJobStatus(JobStatus.ERROR);
-            result.setMessage(e.toString());
-        } finally {
-            jobResultRepository.save(result);
-
-            job = jobRepo.save(job);
+            entry.setMessage("The job executed successfully.");
+        } catch (Exception e) {
+            
+            entry.setMessage(e.toString());
         }
-
+        
+        messageSender.convertAndSend(finishedQueue, entry);
+        
+        logger.info(String.format("Finished task for job %s", job.getJobId()));
     }
 }

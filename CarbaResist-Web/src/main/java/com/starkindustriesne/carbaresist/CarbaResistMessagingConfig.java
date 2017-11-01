@@ -5,6 +5,7 @@
  */
 package com.starkindustriesne.carbaresist;
 
+import com.starkindustriesne.carbaresist.services.JobManagerService;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;
@@ -12,6 +13,8 @@ import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
+import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,16 +25,15 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class CarbaResistMessagingConfig {
-    @Value("${rabbitmq.queueName}")
-    private String queueName;
+    @Value("${rabbitmq.initialTaskQueueName}")
+    private String initialQueue;
+    
+    @Value("${rabbitmq.finishedTaskQueueName}")
+    private String finishedQueue;
 
     @Value("${rabbitmq.host}")
     private String messageHost;
     
-    @Bean
-    public String queueName() {
-        return queueName;
-    }
 
     @Bean
     public ConnectionFactory connectionFactory() {
@@ -40,7 +42,7 @@ public class CarbaResistMessagingConfig {
 
     @Bean
     public Queue queue() {
-        return new Queue(queueName, false);
+        return new Queue(initialQueue, false);
     }
 
     @Bean
@@ -50,11 +52,47 @@ public class CarbaResistMessagingConfig {
 
     @Bean
     public Binding binding(Queue queue, TopicExchange topicExchange) {
-        return BindingBuilder.bind(queue).to(topicExchange).with(queueName);
+        return BindingBuilder.bind(queue).to(topicExchange).with(initialQueue);
     }
 
     @Bean
     public RabbitTemplate rabbitTemplate() {
         return new RabbitTemplate(connectionFactory());
+    }
+    
+    @Bean
+    public SimpleMessageListenerContainer container(ConnectionFactory connectionFactory,
+            MessageListenerAdapter listenerAdapter) {
+        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+        container.setConnectionFactory(connectionFactory());
+        container.setQueueNames(finishedQueueName());
+        container.setMessageListener(listenerAdapter);
+        return container;
+    }
+    
+    @Bean
+    public JobManagerService jobManager() {
+        return new JobManagerService();
+    }
+
+    @Bean
+    public MessageListenerAdapter listenerAdapter() {
+        return new MessageListenerAdapter(jobManager(), "processJobTaskResult");
+    }
+
+    /**
+     * @return the initialQueue
+     */
+    @Bean
+    public String initialQueueName() {
+        return initialQueue;
+    }
+
+    /**
+     * @return the finishedQueue
+     */
+    @Bean
+    public String finishedQueueName() {
+        return finishedQueue;
     }
 }
