@@ -133,8 +133,6 @@ public class JobProcessorService {
                     
                     SequencePair<ProteinSequence, AminoAcidCompound> alignment = aligner.getPair();
 
-                    
-
                     entry.setJobResultId(job.getJobResultId());
                     entry.setGenomeId(genomeId);
                     entry.setResistanceGeneId(resistanceGeneId);
@@ -143,7 +141,7 @@ public class JobProcessorService {
 
                 }
             }
-            entry.setMessage("The job executed successfully.");
+            entry.setMessage("The entry was processed successfully.");
         } catch (Exception e) {
             
             entry.setMessage(e.toString());
