@@ -29,6 +29,9 @@ public class Job implements Serializable {
     
     @Field
     private String email;
+    
+    @Field
+    private SubstitutionMatrix substitutionMatrix;
 
     @Field
     private Set<String> genomeIds = new HashSet<>(), resistanceGeneIds = new HashSet<>();
@@ -94,5 +97,13 @@ public class Job implements Serializable {
      */
     public void setEmail(String email) {
         this.email = email;
+    }
+    
+    public SubstitutionMatrix getSubstitutionMatrix() {
+        return substitutionMatrix;
+    }
+
+    public void setSubstitutionMatrix(SubstitutionMatrix substitutionMatrix) {
+        this.substitutionMatrix = substitutionMatrix;
     }
 }

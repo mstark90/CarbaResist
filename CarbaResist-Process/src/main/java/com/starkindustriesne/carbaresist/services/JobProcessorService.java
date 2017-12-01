@@ -5,6 +5,7 @@
  */
 package com.starkindustriesne.carbaresist.services;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.starkindustriesne.carbaresist.model.JobResultEntry;
 import com.starkindustriesne.carbaresist.model.JobTask;
 import java.io.ByteArrayInputStream;
@@ -47,14 +48,11 @@ public class JobProcessorService {
     @Autowired
     private String finishedQueue;
     
-    @Autowired
-    private String aaSubstitutionMatrix;
-    
     private TranscriptionEngine transcriptionEngine;
     
-    private SubstitutionMatrix<AminoAcidCompound> matrix;
-    
     private GapPenalty gapPenalty;
+    
+    private ObjectMapper serializer;
     
     @PostConstruct
     public void init() {
@@ -64,9 +62,9 @@ public class JobProcessorService {
 
         transcriptionEngine = teBuilder.build();
         
-        matrix = SubstitutionMatrixHelper.getAminoAcidSubstitutionMatrix(aaSubstitutionMatrix);
-        
         gapPenalty = new SimpleGapPenalty();
+        
+        serializer = new ObjectMapper();
     }
     
     private InputStream getInputStream(String content) {
@@ -95,11 +93,19 @@ public class JobProcessorService {
         return sequences;
     }
 
-    public void processJobTask(JobTask job) {
+    public void processJobTask(String message) throws IOException {
+        if(message.length() == 0) {
+            return;
+        }
+        
+        JobTask job = serializer.readValue(message, JobTask.class);
         
         logger.info(String.format("Starting task for job %s", job.getJobId()));
         
         JobResultEntry entry = new JobResultEntry();
+        
+        SubstitutionMatrix<AminoAcidCompound> matrix =
+                SubstitutionMatrixHelper.getAminoAcidSubstitutionMatrix(job.getSubstitutionMatrix().getName());
 
         try {
 
@@ -147,7 +153,7 @@ public class JobProcessorService {
             entry.setMessage(e.toString());
         }
         
-        messageSender.convertAndSend(finishedQueue, entry);
+        messageSender.convertAndSend(finishedQueue, serializer.writeValueAsString(entry));
         
         logger.info(String.format("Finished task for job %s", job.getJobId()));
     }

@@ -15,6 +15,8 @@ public class JobTask {
     
     private String genomeFasta;
     private String resistanceGeneFasta;
+    
+    private SubstitutionMatrix substitutionMatrix;
 
     /**
      * @return the jobId
@@ -70,5 +72,19 @@ public class JobTask {
      */
     public void setResistanceGeneFasta(String resistanceGeneFasta) {
         this.resistanceGeneFasta = resistanceGeneFasta;
+    }
+
+    /**
+     * @return the substitutionMatrix
+     */
+    public SubstitutionMatrix getSubstitutionMatrix() {
+        return substitutionMatrix;
+    }
+
+    /**
+     * @param substitutionMatrix the substitutionMatrix to set
+     */
+    public void setSubstitutionMatrix(SubstitutionMatrix substitutionMatrix) {
+        this.substitutionMatrix = substitutionMatrix;
     }
 }

@@ -5,6 +5,7 @@
  */
 package com.starkindustriesne.carbaresist.services;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.starkindustriesne.carbaresist.model.Job;
 import com.starkindustriesne.carbaresist.model.JobResult;
 import com.starkindustriesne.carbaresist.model.JobResultEntry;
@@ -46,10 +47,14 @@ public class JobManagerService {
     private String initialQueueName;
 
     private HttpClient httpClient;
+    
+    private ObjectMapper serializer;
 
     @PostConstruct
     public void init() {
         httpClient = HttpClientBuilder.create().build();
+        
+        serializer = new ObjectMapper();
     }
 
     private String entrezSearch(String database, String id) throws IOException {
@@ -121,8 +126,9 @@ public class JobManagerService {
                     task.setJobResultId(result.getJobResultId());
                     task.setGenomeFasta(genome);
                     task.setResistanceGeneFasta(resistanceGene);
+                    task.setSubstitutionMatrix(job.getSubstitutionMatrix());
                     
-                    messageSender.convertAndSend(initialQueueName, task);
+                    messageSender.convertAndSend(initialQueueName, serializer.writeValueAsString(task));
                 }
             }
         } catch (Exception e) {

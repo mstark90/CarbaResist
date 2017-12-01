@@ -12,16 +12,20 @@ import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Configuration;
 
 @SpringBootApplication
-@Import({CarbaResistDBConfig.class})
+@EnableAutoConfiguration()
 public class CarbaResistProcessApplication {
     
-    @Value("${rabbitmq.queueName}")
-    private String queueName;
+    @Value("${rabbitmq.initialTaskQueueName}")
+    private String initialQueue;
+    
+    @Value("${rabbitmq.finishedTaskQueueName}")
+    private String finishedQueue;
 
     @Value("${rabbitmq.host}")
     private String messageHost;
@@ -30,8 +34,8 @@ public class CarbaResistProcessApplication {
     private String substitutionMatrix;
     
     @Bean
-    public String queueName() {
-        return queueName;
+    public String finishedQueue() {
+        return finishedQueue;
     }
     
     @Bean
@@ -46,7 +50,7 @@ public class CarbaResistProcessApplication {
 
     @Bean
     public Queue queue() {
-        return new Queue(queueName, false, true, true);
+        return new Queue(initialQueue, false, false, false);
     }
 
     @Bean
@@ -56,7 +60,7 @@ public class CarbaResistProcessApplication {
 
     @Bean
     public Binding binding(Queue queue, TopicExchange topicExchange) {
-        return BindingBuilder.bind(queue).to(topicExchange).with(queueName);
+        return BindingBuilder.bind(queue).to(topicExchange).with(initialQueue);
     }
 
     @Bean
@@ -69,7 +73,7 @@ public class CarbaResistProcessApplication {
             MessageListenerAdapter listenerAdapter) {
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
         container.setConnectionFactory(connectionFactory());
-        container.setQueueNames(queueName);
+        container.setQueueNames(initialQueue);
         container.setMessageListener(listenerAdapter);
         return container;
     }
@@ -81,7 +85,7 @@ public class CarbaResistProcessApplication {
 
     @Bean
     public MessageListenerAdapter listenerAdapter() {
-        return new MessageListenerAdapter(jobProcessor(), "processJob");
+        return new MessageListenerAdapter(jobProcessor(), "processJobTask");
     }
 
     public static void main(String[] args) {

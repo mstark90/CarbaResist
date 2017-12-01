@@ -77,7 +77,7 @@ public class CarbaResistMessagingConfig {
 
     @Bean
     public MessageListenerAdapter listenerAdapter() {
-        return new MessageListenerAdapter(jobManager(), "processJobTaskResult");
+        return new MessageListenerAdapter(jobManager(), "processResultEntry");
     }
 
     /**
