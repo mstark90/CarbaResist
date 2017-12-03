@@ -10,7 +10,7 @@ and open the template in the editor.
     </div>
     <div class="card-body">
         <form>
-            
+
             <div class="form-group">
                 <label for="job-name">Job Name</label>
                 <input type="text" class="form-control" id="job-name" placeholder="Job name" ng-model="vm.jobInfo.jobName" />
@@ -21,21 +21,43 @@ and open the template in the editor.
                 <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
             </div>
             <div class="form-group">
-                <label for="email">
-                    Genome IDs
-                    <button class="btn btn-primary" ng-click="vm.addGenome()">Add</button>
-                </label>
-                <input type="text" class="form-control" id="email" placeholder="Enter Genome ID" ng-repeat="genomeId in vm.jobInfo.genomeIds track by $index">
-            </div>
-            <div class="form-group">
-                <label for="email">
-                    Resistance Gene IDs
-                    <button class="btn btn-primary" ng-click="vm.addResistanceGene()">Add</button>
-                </label>
-                <input type="text" class="form-control" id="email" placeholder="Enter gene ID" ng-repeat="geneId in vm.jobInfo.resistanceGeneIds track by $index">
-            </div>
-            
-            <button type="submit" class="btn btn-primary" ng-click="vm.submit()">Submit</button>
-        </form>
-    </div>
+                <label for="email">Substitution Matrix</label>
+                <select class="form-control" id="substitutionMatrix" ng-model="vm.jobInfo.substitutionMatrix">
+                    <option value="BLOSUM_100">blosum100</option>
+                    <option value="BLOSUM_95">blosum95</option>
+                    <option value="BLOSUM_90">blosum90</option>
+                    <option value="BLOSUM_85">blosum85</option>
+                    <option value="BLOSUM_80">blosum80</option>
+                    <option value="BLOSUM_75">blosum75</option>
+                    <option value="BLOSUM_70">blosum70</option>
+                    <option value="BLOSUM_65">blosum65</option>
+                    <option value="BLOSUM_62">blosum62</option>
+                    <option value="BLOSUM_60">blosum60</option>
+                    <option value="BLOSUM_55">blosum55</option>
+                    <option value="BLOSUM_50">blosum50</option>
+                    <option value="BLOSUM_45">blosum45</option>
+                    <option value="BLOSUM_40">blosum40</option>
+                    <option value="BLOSUM_35">blosum35</option>
+                    <option value="BLOSUM_30">blosum30</option>
+                    <option value="PAM_250">pam250</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="email">
+                Genome IDs
+                <button class="btn btn-primary" ng-click="vm.addGenome()">Add</button>
+            </label>
+            <input type="text" class="form-control" placeholder="Enter genome ID" ng-model="vm.jobInfo.genomeIds[$index]" ng-repeat="genomeId in vm.jobInfo.genomeIds track by $index">
+        </div>
+        <div class="form-group">
+            <label for="email">
+                Resistance Gene IDs
+                <button class="btn btn-primary" ng-click="vm.addResistanceGene()">Add</button>
+            </label>
+            <input type="text" class="form-control" placeholder="Enter gene ID" ng-model="vm.jobInfo.resistanceGeneIds[$index]" ng-repeat="geneId in vm.jobInfo.resistanceGeneIds track by $index">
+        </div>
+
+        <button type="submit" class="btn btn-primary" ng-click="vm.submit()">Submit</button>
+    </form>
+</div>
 </div>

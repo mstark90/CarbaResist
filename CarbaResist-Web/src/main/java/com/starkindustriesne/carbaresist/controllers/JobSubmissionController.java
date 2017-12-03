@@ -50,6 +50,7 @@ public class JobSubmissionController {
         job.setJobName(jobDto.getJobName());
         job.setGenomeIds(new HashSet<>(jobDto.getGenomeIds()));
         job.setResistanceGeneIds(new HashSet<>(jobDto.getResistanceGeneIds()));
+        job.setSubstitutionMatrix(jobDto.getSubstitutionMatrix());
         
         job = jobManager.sendJob(job);
         

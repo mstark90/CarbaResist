@@ -22,6 +22,9 @@ angular
             return  {
                 restrict: "E",
                 templateUrl: "../directives/job-list.html",
+                scope: {
+                    "jobs": "="
+                },
                 controller: JobListController,
                 controllerAs: 'vm'
             };
@@ -37,6 +40,7 @@ function JobSubmissionFormController($scope, JobService) {
     vm.jobInfo = {
         jobName: "",
         email: "",
+        substitutionMatrix: "",
         genomeIds: [],
         resistanceGeneIds: []
     };
@@ -58,6 +62,7 @@ function JobSubmissionFormController($scope, JobService) {
                     vm.jobInfo = {
                         jobName: "",
                         email: "",
+                        substitutionMatrix: "",
                         genomeIds: [],
                         resistanceGeneIds: []
                     };
@@ -65,15 +70,14 @@ function JobSubmissionFormController($scope, JobService) {
     };
 }
 
-JobListController.$inject = ['JobService'];
+JobListController.$inject = ['JobService', '$scope'];
 
-function JobListController(JobService) {
+function JobListController(JobService, $scope) {
     var vm = this;
-
-    vm.jobs = [];
-
-    JobService.findAll()
-            .then(function (jobs) {
-                vm.jobs = vm.jobs.concat(jobs);
-            });
+    
+    $scope.$watch("jobs", function(newJobs, oldJobs, scope) {
+        vm.jobs = newJobs;
+    });
+    
+    
 }

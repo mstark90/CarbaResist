@@ -12,7 +12,8 @@ function config($routeProvider) {
     $routeProvider
             .when("/", {
                 templateUrl: "../ang_templates/home.html",
-                controller: "HomeController"
+                controller: "HomeController",
+                controllerAs: "vm"
             })
             .when("/jobs/:jobId", {
                 templateUrl: "../ang_templates/job.html",

@@ -42,7 +42,7 @@ public class CarbaResistMessagingConfig {
 
     @Bean
     public Queue queue() {
-        return new Queue(initialQueue, false);
+        return new Queue(initialQueue, false, false, false);
     }
 
     @Bean

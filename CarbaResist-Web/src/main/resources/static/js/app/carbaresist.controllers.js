@@ -13,7 +13,18 @@ angular
 HomeController.$inject = ["JobService"];
 
 function HomeController(JobService) {
+    var vm = this;
+    
+    vm.jobs = [];
 
+    JobService.findAll()
+            .then(function (jobs) {
+                vm.jobs = vm.jobs.concat(jobs);
+            });
+    
+    vm.onJobSubmit = function(job) {
+        vm.jobs.push(job);
+    };
 }
 
 JobViewController.$inject = ["JobService", "$routeParams"];

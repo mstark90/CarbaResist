@@ -71,14 +71,14 @@ public class JobManagerService {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(entity.getContent()))) {
             String line = null;
             while ((line = reader.readLine()) != null) {
-                content.append(line);
+                content.append(line).append("\n");
             }
         }
 
         return content.toString();
     }
 
-    private String entrezSearch(String database, Iterable<String> ids) throws IOException {
+    private String entrezSearch(String database, String... ids) throws IOException {
         String url = String.format("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?"
                 + "db=%s&id=%s&rettype=fasta&retmode=text", database, String.join(",", ids));
 
@@ -92,7 +92,7 @@ public class JobManagerService {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(entity.getContent()))) {
             String line = null;
             while ((line = reader.readLine()) != null) {
-                content.append(line);
+                content.append(line).append("\n");
             }
         }
 
@@ -142,9 +142,19 @@ public class JobManagerService {
         return job;
     }
 
-    public void processResultEntry(JobResultEntry resultEntry) {
-        JobResult result = jobResultRepo.findByJobResultId(resultEntry.getJobResultId());
-        Job job = jobRepo.findByJobId(result.getJobId());
+    public void processResultEntry(String message) throws IOException {
+        if(message.length() == 0) {
+            return;
+        }
+        
+        JobResultEntry resultEntry = serializer.readValue(message, JobResultEntry.class);
+        
+        if(resultEntry.getJobResultId() == null){
+            return;
+        }
+        
+        JobResult result = jobResultRepo.findOne(resultEntry.getJobResultId());
+        Job job = jobRepo.findOne(result.getJobId());
 
         result.getEntries().add(resultEntry);
 
@@ -154,6 +164,6 @@ public class JobManagerService {
         }
 
         result = jobResultRepo.save(result);
-
+        jobRepo.save(job);
     }
 }

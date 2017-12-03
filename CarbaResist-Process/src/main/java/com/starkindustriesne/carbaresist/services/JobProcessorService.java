@@ -26,6 +26,7 @@ import org.biojava.nbio.core.alignment.template.SequencePair;
 import org.biojava.nbio.core.alignment.template.SubstitutionMatrix;
 import org.biojava.nbio.core.sequence.DNASequence;
 import org.biojava.nbio.core.sequence.ProteinSequence;
+import org.biojava.nbio.core.sequence.RNASequence;
 import org.biojava.nbio.core.sequence.compound.AminoAcidCompound;
 import org.biojava.nbio.core.sequence.io.FastaReaderHelper;
 import org.biojava.nbio.core.sequence.transcription.TranscriptionEngine;
@@ -104,6 +105,8 @@ public class JobProcessorService {
         
         JobResultEntry entry = new JobResultEntry();
         
+        entry.setJobResultId(job.getJobResultId());
+        
         SubstitutionMatrix<AminoAcidCompound> matrix =
                 SubstitutionMatrixHelper.getAminoAcidSubstitutionMatrix(job.getSubstitutionMatrix().getName());
 
@@ -113,20 +116,22 @@ public class JobProcessorService {
             Map<String, ProteinSequence> processedGenomes = new HashMap<>();
 
             for (Map.Entry<String, DNASequence> genome : genomes.entrySet()) {
-                processedGenomes.put(genome.getKey().substring(0, genome.getKey().indexOf(" ")), genome.getValue()
-                        .getRNASequence().getProteinSequence(transcriptionEngine));
+                RNASequence rna = genome.getValue().getRNASequence();
+                processedGenomes.put(genome.getKey().substring(0, genome.getKey().indexOf(" ")),
+                        rna.getProteinSequence(transcriptionEngine));
             }
 
-            Map<String, ProteinSequence> resistanceGenes
-                    = parseProteinSequence(job.getResistanceGeneFasta());
+            Map<String, DNASequence> resistanceGenes
+                    = parseDNASequence(job.getResistanceGeneFasta());
             
             Map<String, ProteinSequence> processedResistanceGenes = new HashMap<>();
             
-            for (Map.Entry<String, ProteinSequence> resistanceGene
+            for (Map.Entry<String, DNASequence> resistanceGene
                     : resistanceGenes.entrySet()) {
                 processedResistanceGenes.put(resistanceGene.getKey()
                         .substring(0, resistanceGene.getKey().indexOf(" ")),
-                        resistanceGene.getValue());
+                        resistanceGene.getValue().getRNASequence()
+                                .getProteinSequence(transcriptionEngine));
             }
 
             for (String genomeId : processedGenomes.keySet()) {
@@ -139,7 +144,6 @@ public class JobProcessorService {
                     
                     SequencePair<ProteinSequence, AminoAcidCompound> alignment = aligner.getPair();
 
-                    entry.setJobResultId(job.getJobResultId());
                     entry.setGenomeId(genomeId);
                     entry.setResistanceGeneId(resistanceGeneId);
                     entry.setAlignment(alignment.toString());
@@ -149,6 +153,7 @@ public class JobProcessorService {
             }
             entry.setMessage("The entry was processed successfully.");
         } catch (Exception e) {
+            logger.warn("Could not process the genome: ", e);
             
             entry.setMessage(e.toString());
         }

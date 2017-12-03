@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <div class="row">
     <div class="col-4">
-        <job-submission-form></job-submission-form>
+        <job-submission-form onSubmit="vm.onSubmitJob(job)"></job-submission-form>
     </div>
     <div class="col-8">
-        <job-list jobs="jobs"></job-list>
+        <job-list jobs="vm.jobs"></job-list>
     </div>
 </div>

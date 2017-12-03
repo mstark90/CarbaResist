@@ -5,6 +5,7 @@
  */
 package com.starkindustriesne.carbaresist.dto;
 
+import com.starkindustriesne.carbaresist.model.SubstitutionMatrix;
 import java.io.Serializable;
 import java.util.List;
 import javax.validation.constraints.NotNull;
@@ -30,6 +31,9 @@ public class JobDTO implements Serializable {
     
     @NotNull
     private List<String> resistanceGeneIds;
+    
+    @NotNull
+    private SubstitutionMatrix substitutionMatrix;
 
     /**
      * @return the name
@@ -85,5 +89,19 @@ public class JobDTO implements Serializable {
      */
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    /**
+     * @return the substitutionMatrix
+     */
+    public SubstitutionMatrix getSubstitutionMatrix() {
+        return substitutionMatrix;
+    }
+
+    /**
+     * @param substitutionMatrix the substitutionMatrix to set
+     */
+    public void setSubstitutionMatrix(SubstitutionMatrix substitutionMatrix) {
+        this.substitutionMatrix = substitutionMatrix;
     }
 }
