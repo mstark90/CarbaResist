@@ -11,3 +11,7 @@ and open the template in the editor.
 #main-container {
     padding-top: 40px;
 }
+
+.accordion-toggle {
+    cursor: pointer;
+}

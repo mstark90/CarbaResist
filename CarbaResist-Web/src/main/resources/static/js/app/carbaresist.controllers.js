@@ -34,6 +34,8 @@ function JobViewController(JobService, $routeParams) {
 
     vm.result = null;
     vm.progress = 0;
+    
+    $("#accordion").collapse();
 
     JobService.getJob($routeParams["jobId"])
             .then(function (job) {

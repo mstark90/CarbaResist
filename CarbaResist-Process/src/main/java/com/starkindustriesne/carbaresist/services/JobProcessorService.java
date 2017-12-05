@@ -124,6 +124,10 @@ public class JobProcessorService {
 
             for (Map.Entry<String, DNASequence> genome : genomes.entrySet()) {
                 RNASequence rna = genome.getValue().getRNASequence();
+                
+                entry.setGenomeName(genome.getKey());
+                entry.setGenomeId(genome.getKey().substring(0, genome.getKey().indexOf(" ")));
+                
                 processedGenomes.put(genome.getKey().substring(0, genome.getKey().indexOf(" ")),
                         rna.getProteinSequence(transcriptionEngine));
             }
@@ -135,9 +139,13 @@ public class JobProcessorService {
             if (isDNASequence(resistanceFasta.substring(resistanceFasta.indexOf("\n") + 1))) {
                 Map<String, DNASequence> resistanceGenes
                         = parseDNASequence(job.getResistanceGeneFasta());
-
+                
                 for (Map.Entry<String, DNASequence> resistanceGene
                         : resistanceGenes.entrySet()) {
+                    entry.setResistanceGeneName(resistanceGene.getKey());
+                    entry.setResistanceGeneId(resistanceGene.getKey()
+                            .substring(0, resistanceGene.getKey().indexOf(" ")));
+                    
                     processedResistanceGenes.put(resistanceGene.getKey()
                             .substring(0, resistanceGene.getKey().indexOf(" ")),
                             resistanceGene.getValue().getRNASequence()
@@ -149,6 +157,10 @@ public class JobProcessorService {
                 
                 for (Map.Entry<String, ProteinSequence> resistanceGene
                         : resistanceGenes.entrySet()) {
+                    entry.setResistanceGeneName(resistanceGene.getKey());
+                    entry.setResistanceGeneId(resistanceGene.getKey()
+                            .substring(0, resistanceGene.getKey().indexOf(" ")));
+                    
                     processedResistanceGenes.put(resistanceGene.getKey()
                             .substring(0, resistanceGene.getKey().indexOf(" ")),
                             resistanceGene.getValue());
@@ -164,11 +176,13 @@ public class JobProcessorService {
                             PairwiseSequenceAlignerType.LOCAL, gapPenalty, matrix);
 
                     SequencePair<ProteinSequence, AminoAcidCompound> alignment = aligner.getPair();
+                    
+                    String alignmentStr = "CLUSTAL\n%s\t%s\n%s\t%s";
+                    
+                    String[] alignmentParts = alignment.toString().split("\n");
 
-                    entry.setGenomeId(genomeId);
-                    entry.setResistanceGeneId(resistanceGeneId);
-                    entry.setAlignment(alignment.toString());
-                    entry.setScore((int) (aligner.getScore() * 100));
+                    entry.setAlignment(String.format(alignmentStr, genomeId, alignmentParts[0], resistanceGeneId, alignmentParts[1]));
+                    entry.setScore((int) (aligner.getScore()));
 
                 }
             }

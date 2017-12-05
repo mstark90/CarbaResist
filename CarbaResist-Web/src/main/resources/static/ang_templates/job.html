@@ -43,14 +43,17 @@ and open the template in the editor.
                     <div id="accordion" role="tablist">
                         <div class="card" ng-repeat="entry in vm.result.entries track by $index">
                             <div class="card-header" role="tab" id="result-heading-{{$index}}">
-                                <h5 class="mb-0">
-                                    <a data-toggle="collapse" href="#result-{{$index}}" aria-expanded="true" aria-controls="collapseOne">
+                                <h6 class="mb-0 float-left">
+                                    <a class="accordion-toggle" data-toggle="collapse" data-target="#result-{{$index}}" aria-expanded="true" aria-controls="collapseOne">
                                         {{entry.genomeId}} - {{entry.resistanceGeneId}}
                                     </a>
-                                </h5>
+                                </h6>
+                                <span class="badge badge-secondary float-right">
+                                    Score: {{entry.score}}
+                                </span>
                             </div>
 
-                            <div id="result-{{$index}}" class="collapse show" role="tabpanel" aria-labelledby="result-heading-{{$index}}" data-parent="#accordion">
+                            <div id="result-{{$index}}" class="collapse" role="tabpanel" aria-labelledby="result-heading-{{$index}}" data-parent="#accordion">
                                 <div class="card-body">
                                     {{entry.alignment}}
                                 </div>

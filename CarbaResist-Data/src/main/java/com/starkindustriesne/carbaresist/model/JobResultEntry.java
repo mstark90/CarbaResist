@@ -10,7 +10,7 @@ public class JobResultEntry implements Serializable {
     private static final long serialVersionUID = 8789831573078632924L;
 
     private String entryId, jobResultId, genomeId, resistanceGeneId, alignment,
-            message;
+            message, genomeName, resistanceGeneName;
 
     private int score = 0;
 
@@ -74,5 +74,33 @@ public class JobResultEntry implements Serializable {
      */
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    /**
+     * @return the genomeName
+     */
+    public String getGenomeName() {
+        return genomeName;
+    }
+
+    /**
+     * @param genomeName the genomeName to set
+     */
+    public void setGenomeName(String genomeName) {
+        this.genomeName = genomeName;
+    }
+
+    /**
+     * @return the resistanceGeneName
+     */
+    public String getResistanceGeneName() {
+        return resistanceGeneName;
+    }
+
+    /**
+     * @param resistanceGeneName the resistanceGeneName to set
+     */
+    public void setResistanceGeneName(String resistanceGeneName) {
+        this.resistanceGeneName = resistanceGeneName;
     }
 }

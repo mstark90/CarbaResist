@@ -64,7 +64,7 @@ public class JobSubmissionController {
     
     @GetMapping("/{jobId}")
     public Job getById(@PathVariable("jobId") String jobId) {
-        return jobRepo.findByJobId(jobId);
+        return jobRepo.findOne(jobId);
     }
     
     @GetMapping("/{jobId}/result")
