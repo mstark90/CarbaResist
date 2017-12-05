@@ -30,6 +30,12 @@ public class CarbaResistMessagingConfig {
     
     @Value("${rabbitmq.finishedTaskQueueName}")
     private String finishedQueue;
+    
+    @Value("${rabbitmq.user}")
+    private String amqpUsername;
+    
+    @Value("${rabbitmq.password}")
+    private String amqpPassword;
 
     @Value("${rabbitmq.host}")
     private String messageHost;
@@ -37,7 +43,12 @@ public class CarbaResistMessagingConfig {
 
     @Bean
     public ConnectionFactory connectionFactory() {
-        return new CachingConnectionFactory(messageHost);
+        CachingConnectionFactory factory = new CachingConnectionFactory(messageHost);
+        
+        factory.setUsername(amqpUsername);
+        factory.setPassword(amqpPassword);
+        
+        return factory;
     }
 
     @Bean

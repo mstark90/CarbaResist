@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 import javax.annotation.PostConstruct;
 import org.apache.log4j.Logger;
 import org.biojava.nbio.alignment.Alignments;
@@ -40,7 +41,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class JobProcessorService {
-    
+
     private static final Logger logger = Logger.getLogger(JobProcessorService.class);
 
     @Autowired
@@ -48,13 +49,13 @@ public class JobProcessorService {
 
     @Autowired
     private String finishedQueue;
-    
+
     private TranscriptionEngine transcriptionEngine;
-    
+
     private GapPenalty gapPenalty;
-    
+
     private ObjectMapper serializer;
-    
+
     @PostConstruct
     public void init() {
         TranscriptionEngine.Builder teBuilder = new TranscriptionEngine.Builder();
@@ -62,16 +63,16 @@ public class JobProcessorService {
         teBuilder.table(11).initMet(true).trimStop(false);
 
         transcriptionEngine = teBuilder.build();
-        
+
         gapPenalty = new SimpleGapPenalty();
-        
+
         serializer = new ObjectMapper();
     }
-    
+
     private InputStream getInputStream(String content) {
         return new ByteArrayInputStream(content.getBytes(Charset.forName("utf-8")));
     }
-    
+
     private Map<String, DNASequence> parseDNASequence(String fasta) throws IOException {
         Map<String, DNASequence> sequences = null;
 
@@ -79,10 +80,10 @@ public class JobProcessorService {
             sequences
                     = FastaReaderHelper.readFastaDNASequence(is);
         }
-        
+
         return sequences;
     }
-    
+
     private Map<String, ProteinSequence> parseProteinSequence(String fasta) throws IOException {
         Map<String, ProteinSequence> sequences = null;
 
@@ -90,25 +91,31 @@ public class JobProcessorService {
             sequences
                     = FastaReaderHelper.readFastaProteinSequence(is);
         }
-        
+
         return sequences;
+    }
+    
+    public boolean isDNASequence(String sequence) {
+        Pattern regex = Pattern.compile("^[ACGT]+$", Pattern.CASE_INSENSITIVE);
+        
+        return regex.matcher(sequence).matches();
     }
 
     public void processJobTask(String message) throws IOException {
-        if(message.length() == 0) {
+        if (message.length() == 0) {
             return;
         }
-        
+
         JobTask job = serializer.readValue(message, JobTask.class);
-        
+
         logger.info(String.format("Starting task for job %s", job.getJobId()));
-        
+
         JobResultEntry entry = new JobResultEntry();
-        
+
         entry.setJobResultId(job.getJobResultId());
-        
-        SubstitutionMatrix<AminoAcidCompound> matrix =
-                SubstitutionMatrixHelper.getAminoAcidSubstitutionMatrix(job.getSubstitutionMatrix().getName());
+
+        SubstitutionMatrix<AminoAcidCompound> matrix
+                = SubstitutionMatrixHelper.getAminoAcidSubstitutionMatrix(job.getSubstitutionMatrix().getName());
 
         try {
 
@@ -121,17 +128,31 @@ public class JobProcessorService {
                         rna.getProteinSequence(transcriptionEngine));
             }
 
-            Map<String, DNASequence> resistanceGenes
-                    = parseDNASequence(job.getResistanceGeneFasta());
-            
+            String resistanceFasta = job.getResistanceGeneFasta();
+
             Map<String, ProteinSequence> processedResistanceGenes = new HashMap<>();
-            
-            for (Map.Entry<String, DNASequence> resistanceGene
-                    : resistanceGenes.entrySet()) {
-                processedResistanceGenes.put(resistanceGene.getKey()
-                        .substring(0, resistanceGene.getKey().indexOf(" ")),
-                        resistanceGene.getValue().getRNASequence()
-                                .getProteinSequence(transcriptionEngine));
+
+            if (isDNASequence(resistanceFasta.substring(resistanceFasta.indexOf("\n") + 1))) {
+                Map<String, DNASequence> resistanceGenes
+                        = parseDNASequence(job.getResistanceGeneFasta());
+
+                for (Map.Entry<String, DNASequence> resistanceGene
+                        : resistanceGenes.entrySet()) {
+                    processedResistanceGenes.put(resistanceGene.getKey()
+                            .substring(0, resistanceGene.getKey().indexOf(" ")),
+                            resistanceGene.getValue().getRNASequence()
+                                    .getProteinSequence(transcriptionEngine));
+                }
+            } else {
+                Map<String, ProteinSequence> resistanceGenes
+                        = parseProteinSequence(job.getResistanceGeneFasta());
+                
+                for (Map.Entry<String, ProteinSequence> resistanceGene
+                        : resistanceGenes.entrySet()) {
+                    processedResistanceGenes.put(resistanceGene.getKey()
+                            .substring(0, resistanceGene.getKey().indexOf(" ")),
+                            resistanceGene.getValue());
+                }
             }
 
             for (String genomeId : processedGenomes.keySet()) {
@@ -139,27 +160,27 @@ public class JobProcessorService {
 
                 for (String resistanceGeneId : processedResistanceGenes.keySet()) {
                     PairwiseSequenceAligner<ProteinSequence, AminoAcidCompound> aligner = Alignments.getPairwiseAligner(genome,
-                                    processedResistanceGenes.get(resistanceGeneId),
-                                    PairwiseSequenceAlignerType.LOCAL, gapPenalty, matrix);
-                    
+                            processedResistanceGenes.get(resistanceGeneId),
+                            PairwiseSequenceAlignerType.LOCAL, gapPenalty, matrix);
+
                     SequencePair<ProteinSequence, AminoAcidCompound> alignment = aligner.getPair();
 
                     entry.setGenomeId(genomeId);
                     entry.setResistanceGeneId(resistanceGeneId);
                     entry.setAlignment(alignment.toString());
-                    entry.setScore((int)(aligner.getScore() * 100));
+                    entry.setScore((int) (aligner.getScore() * 100));
 
                 }
             }
             entry.setMessage("The entry was processed successfully.");
         } catch (Exception e) {
             logger.warn("Could not process the genome: ", e);
-            
+
             entry.setMessage(e.toString());
         }
-        
+
         messageSender.convertAndSend(finishedQueue, serializer.writeValueAsString(entry));
-        
+
         logger.info(String.format("Finished task for job %s", job.getJobId()));
     }
 }

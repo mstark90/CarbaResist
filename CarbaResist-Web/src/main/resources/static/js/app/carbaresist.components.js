@@ -13,7 +13,7 @@ angular
                 scope: {
                     submit: '&onSubmit'
                 },
-                templateUrl: "../directives/job-submission-form.html",
+                templateUrl: "directives/job-submission-form.html",
                 controller: JobSubmissionFormController,
                 controllerAs: 'vm'
             };
@@ -21,7 +21,7 @@ angular
         .directive("jobList", function () {
             return  {
                 restrict: "E",
-                templateUrl: "../directives/job-list.html",
+                templateUrl: "directives/job-list.html",
                 scope: {
                     "jobs": "="
                 },

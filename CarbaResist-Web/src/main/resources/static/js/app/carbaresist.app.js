@@ -11,12 +11,12 @@ angular
 function config($routeProvider) {
     $routeProvider
             .when("/", {
-                templateUrl: "../ang_templates/home.html",
+                templateUrl: "ang_templates/home.html",
                 controller: "HomeController",
                 controllerAs: "vm"
             })
             .when("/jobs/:jobId", {
-                templateUrl: "../ang_templates/job.html",
+                templateUrl: "ang_templates/job.html",
                 controller: "JobViewController",
                 controllerAs: "vm"
             });
