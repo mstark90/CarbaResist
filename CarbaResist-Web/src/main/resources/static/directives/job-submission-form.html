@@ -43,18 +43,16 @@ and open the template in the editor.
             </select>
         </div>
         <div class="form-group">
-            <label for="email">
+            <label for="genome-ids">
                 Genome IDs
-                <button class="btn btn-primary" ng-click="vm.addGenome()">Add</button>
             </label>
-            <input type="text" class="form-control" placeholder="Enter genome ID" ng-model="vm.jobInfo.genomeIds[$index]" ng-repeat="genomeId in vm.jobInfo.genomeIds track by $index">
+            <textarea id="genome-ids" class="form-control" placeholder="Enter genome IDs" ng-model="vm.jobInfo.genomeIds" rows="5"></textarea>
         </div>
         <div class="form-group">
-            <label for="email">
+            <label for="resistance-ids">
                 Resistance Gene IDs
-                <button class="btn btn-primary" ng-click="vm.addResistanceGene()">Add</button>
             </label>
-            <input type="text" class="form-control" placeholder="Enter gene ID" ng-model="vm.jobInfo.resistanceGeneIds[$index]" ng-repeat="geneId in vm.jobInfo.resistanceGeneIds track by $index">
+            <textarea id="resistance-ids" class="form-control" placeholder="Enter gene IDs" ng-model="vm.jobInfo.resistanceGeneIds" rows="5"></textarea>
         </div>
 
         <button type="submit" class="btn btn-primary" ng-click="vm.submit()">Submit</button>

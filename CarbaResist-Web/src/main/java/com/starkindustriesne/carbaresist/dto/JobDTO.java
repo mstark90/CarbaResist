@@ -27,10 +27,10 @@ public class JobDTO implements Serializable {
     private String email;
     
     @NotNull
-    private List<String> genomeIds;
+    private String genomeIds;
     
     @NotNull
-    private List<String> resistanceGeneIds;
+    private String resistanceGeneIds;
     
     @NotNull
     private SubstitutionMatrix substitutionMatrix;
@@ -52,28 +52,28 @@ public class JobDTO implements Serializable {
     /**
      * @return the genomeIds
      */
-    public List<String> getGenomeIds() {
+    public String getGenomeIds() {
         return genomeIds;
     }
 
     /**
      * @param genomeIds the genomeIds to set
      */
-    public void setGenomeIds(List<String> genomeIds) {
+    public void setGenomeIds(String genomeIds) {
         this.genomeIds = genomeIds;
     }
 
     /**
      * @return the resistanceGeneIds
      */
-    public List<String> getResistanceGeneIds() {
+    public String getResistanceGeneIds() {
         return resistanceGeneIds;
     }
 
     /**
      * @param resistanceGeneIds the resistanceGeneIds to set
      */
-    public void setResistanceGeneIds(List<String> resistanceGeneIds) {
+    public void setResistanceGeneIds(String resistanceGeneIds) {
         this.resistanceGeneIds = resistanceGeneIds;
     }
 

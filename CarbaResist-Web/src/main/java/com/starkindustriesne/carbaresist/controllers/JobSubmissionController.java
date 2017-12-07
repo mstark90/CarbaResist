@@ -12,6 +12,7 @@ import com.starkindustriesne.carbaresist.model.JobStatus;
 import com.starkindustriesne.carbaresist.repositories.JobRepository;
 import com.starkindustriesne.carbaresist.repositories.JobResultRepository;
 import com.starkindustriesne.carbaresist.services.JobManagerService;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import javax.validation.Valid;
@@ -48,8 +49,8 @@ public class JobSubmissionController {
         job.setJobStatus(JobStatus.SUBMITTED);
         job.setEmail(jobDto.getEmail());
         job.setJobName(jobDto.getJobName());
-        job.setGenomeIds(new HashSet<>(jobDto.getGenomeIds()));
-        job.setResistanceGeneIds(new HashSet<>(jobDto.getResistanceGeneIds()));
+        job.setGenomeIds(new HashSet<>(Arrays.asList(jobDto.getGenomeIds().split("\n"))));
+        job.setResistanceGeneIds(new HashSet<>(Arrays.asList(jobDto.getResistanceGeneIds())));
         job.setSubstitutionMatrix(jobDto.getSubstitutionMatrix());
         
         job = jobManager.sendJob(job);

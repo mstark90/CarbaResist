@@ -5,6 +5,21 @@ To change this template file, choose Tools | Templates
 and open the template in the editor.
 -->
 <div class="container">
+    <nav aria-label="breadcrumb" role="navigation">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item" aria-current="page">
+                <a href="#!/">
+                    Home
+                </a>
+            </li>
+            <li class="breadcrumb-item" aria-current="page">
+                Jobs
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                {{vm.job.jobName}}
+            </li>
+        </ol>
+    </nav>
     <h1>
         {{vm.job.jobName}}
     </h1>
@@ -55,7 +70,42 @@ and open the template in the editor.
 
                             <div id="result-{{$index}}" class="collapse" role="tabpanel" aria-labelledby="result-heading-{{$index}}" data-parent="#accordion">
                                 <div class="card-body">
-                                    {{entry.alignment}}
+                                    <div class="card">
+                                        <div class="card-header">
+                                            Information
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="container-fluid">
+                                                <div class="row">
+                                                    <div class="col-4">
+                                                        Organism:
+                                                    </div>
+                                                    <div class="col-8">
+                                                        {{entry.genomeName}}
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-4">
+                                                        Resistance gene:
+                                                    </div>
+                                                    <div class="col-8">
+                                                         {{entry.resistanceGeneName}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <br />
+                                    <div class="card">
+                                        <div class="card-header">
+                                            Alignment
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="alignment-viewer">
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

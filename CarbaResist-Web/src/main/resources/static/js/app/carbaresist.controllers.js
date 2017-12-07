@@ -14,15 +14,15 @@ HomeController.$inject = ["JobService"];
 
 function HomeController(JobService) {
     var vm = this;
-    
+
     vm.jobs = [];
 
     JobService.findAll()
             .then(function (jobs) {
                 vm.jobs = vm.jobs.concat(jobs);
             });
-    
-    vm.onJobSubmit = function(job) {
+
+    vm.onJobSubmit = function (job) {
         vm.jobs.push(job);
     };
 }
@@ -34,7 +34,7 @@ function JobViewController(JobService, $routeParams) {
 
     vm.result = null;
     vm.progress = 0;
-    
+
     $("#accordion").collapse();
 
     JobService.getJob($routeParams["jobId"])
@@ -45,6 +45,18 @@ function JobViewController(JobService, $routeParams) {
     JobService.getResult($routeParams["jobId"])
             .then(function (result) {
                 vm.result = result;
+
+                for (var i = 0; i < result.entries.length; i++) {
+                    var seqs = msa.io.clustal.parse(result.entries[i].alignment);
+
+                    var m = msa({
+                        el: document.querySelector("#result-"+ i +" .alignment-viewer"),
+                        seqs: seqs
+                    });
+                    m.render();
+                }
+
                 vm.progress = vm.result.entryCount > 0 ? vm.result.entries.length / vm.result.entryCount * 100 : 0;
+                vm.progress = vm.progress < 100 ? vm.progress : 100;
             });
 }

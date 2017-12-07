@@ -1,9 +1,18 @@
 <!DOCTYPE html>
-<div class="row">
-    <div class="col-4">
-        <job-submission-form onSubmit="vm.onSubmitJob(job)"></job-submission-form>
-    </div>
-    <div class="col-8">
-        <job-list jobs="vm.jobs"></job-list>
+<div class="container-fluid">
+    <nav aria-label="breadcrumb" role="navigation">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item" aria-current="page">
+                Home
+            </li>
+        </ol>
+    </nav>
+    <div class="row">
+        <div class="col-4">
+            <job-submission-form onSubmit="vm.onSubmitJob(job)"></job-submission-form>
+        </div>
+        <div class="col-8">
+            <job-list jobs="vm.jobs"></job-list>
+        </div>
     </div>
 </div>

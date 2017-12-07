@@ -23,6 +23,7 @@ import org.biojava.nbio.alignment.SimpleGapPenalty;
 import org.biojava.nbio.alignment.template.GapPenalty;
 import org.biojava.nbio.alignment.template.PairwiseSequenceAligner;
 import org.biojava.nbio.core.alignment.matrices.SubstitutionMatrixHelper;
+import org.biojava.nbio.core.alignment.template.Profile;
 import org.biojava.nbio.core.alignment.template.SequencePair;
 import org.biojava.nbio.core.alignment.template.SubstitutionMatrix;
 import org.biojava.nbio.core.sequence.DNASequence;
@@ -176,12 +177,8 @@ public class JobProcessorService {
                             PairwiseSequenceAlignerType.LOCAL, gapPenalty, matrix);
 
                     SequencePair<ProteinSequence, AminoAcidCompound> alignment = aligner.getPair();
-                    
-                    String alignmentStr = "CLUSTAL\n%s\t%s\n%s\t%s";
-                    
-                    String[] alignmentParts = alignment.toString().split("\n");
 
-                    entry.setAlignment(String.format(alignmentStr, genomeId, alignmentParts[0], resistanceGeneId, alignmentParts[1]));
+                    entry.setAlignment(alignment.toString(Profile.StringFormat.CLUSTALW));
                     entry.setScore((int) (aligner.getScore()));
 
                 }

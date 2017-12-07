@@ -53,6 +53,11 @@
             <artifactId>CarbaResist-Data</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>org.biojava</groupId>
+            <artifactId>biojava-alignment</artifactId>
+            <version>4.2.9</version>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>

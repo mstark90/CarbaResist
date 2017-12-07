@@ -41,16 +41,8 @@ function JobSubmissionFormController($scope, JobService) {
         jobName: "",
         email: "",
         substitutionMatrix: "",
-        genomeIds: [],
-        resistanceGeneIds: []
-    };
-
-    vm.addGenome = function () {
-        vm.jobInfo.genomeIds.push("");
-    };
-
-    vm.addResistanceGene = function () {
-        vm.jobInfo.resistanceGeneIds.push("");
+        genomeIds: "",
+        resistanceGeneIds: ""
     };
 
     vm.submit = function () {
