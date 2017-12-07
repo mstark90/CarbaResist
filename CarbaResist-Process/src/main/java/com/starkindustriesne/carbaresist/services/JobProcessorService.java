@@ -178,7 +178,7 @@ public class JobProcessorService {
 
                     SequencePair<ProteinSequence, AminoAcidCompound> alignment = aligner.getPair();
 
-                    entry.setAlignment(alignment.toString(Profile.StringFormat.CLUSTALW));
+                    entry.setAlignment(alignment.toString(Profile.StringFormat.CLUSTALW).replace(".", "_"));
                     entry.setScore((int) (aligner.getScore()));
 
                 }
