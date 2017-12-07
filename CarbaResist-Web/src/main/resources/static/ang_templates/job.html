@@ -48,6 +48,50 @@ and open the template in the editor.
                     </div>
                 </div>
             </div>
+            <br />
+            <div class="card">
+                <div class="card-header">
+                    Information
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6 align-left">
+                            Start:
+                        </div>
+                        <div class="col-6 align-right">
+                            {{vm.result.start | date:'short'}}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 align-left">
+                            End:
+                        </div>
+                        <div class="col-6 align-right">
+                            {{vm.result.end | date:'short'}}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 align-left">
+                            Genomes processed:
+                        </div>
+                        <div class="col-6 align-right">
+                            <span class="align-right" ng-repeat="genomeId in vm.job.genomeIds">
+                                {{genomeId}}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 align-left">
+                            Resistance genes checked:
+                        </div>
+                        <div class="col-6 align-right">
+                            <span class="align-right" ng-repeat="resistanceGeneId in vm.job.resistanceGeneIds">
+                                {{resistanceGeneId}}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="col-8">
             <div class="card">

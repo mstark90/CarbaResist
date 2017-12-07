@@ -27,9 +27,9 @@ function HomeController(JobService) {
     };
 }
 
-JobViewController.$inject = ["JobService", "$routeParams"];
+JobViewController.$inject = ["JobService", "$routeParams", "$scope", "$log"];
 
-function JobViewController(JobService, $routeParams) {
+function JobViewController(JobService, $routeParams, $scope, $log) {
     var vm = this;
 
     vm.result = null;
@@ -46,17 +46,34 @@ function JobViewController(JobService, $routeParams) {
             .then(function (result) {
                 vm.result = result;
 
-                for (var i = 0; i < result.entries.length; i++) {
-                    var seqs = msa.io.clustal.parse(result.entries[i].alignment);
-
-                    var m = msa({
-                        el: document.querySelector("#result-"+ i +" .alignment-viewer"),
-                        seqs: seqs
-                    });
-                    m.render();
-                }
-
                 vm.progress = vm.result.entryCount > 0 ? vm.result.entries.length / vm.result.entryCount * 100 : 0;
                 vm.progress = vm.progress < 100 ? vm.progress : 100;
+
             });
+
+    $scope.$watch(function () {
+        return vm.result != null && angular.element(".alignment-viewer").length === vm.result.entries.length;
+    }, function () {
+        if(vm.result === null) {
+            return;
+        }
+        
+        for (var i = 0; i < vm.result.entries.length; i++) {
+            try {
+                var entry = vm.result.entries[i];
+                var resultElement = "#result-" + i + " .alignment-viewer";
+
+                var seqs = msa.io.clustal.parse(entry.alignment);
+
+                var m = msa({
+                    el: document.querySelector(resultElement),
+                    seqs: seqs
+                });
+                m.render();
+            } catch (e) {
+                $log.warn(e);
+            }
+        }
+
+    });
 }

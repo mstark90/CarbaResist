@@ -17,6 +17,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -33,6 +35,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class JobManagerService {
+    
+    private static final Logger logger = Logger.getLogger(JobManagerService.class.getName());
 
     @Autowired
     private JobRepository jobRepo;
@@ -132,6 +136,8 @@ public class JobManagerService {
                 }
             }
         } catch (Exception e) {
+            logger.log(Level.WARNING, "Could not process the job: ", e);
+            
             job.setJobStatus(JobStatus.ERROR);
             result.setMessage(e.toString());
             

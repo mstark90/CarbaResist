@@ -15,3 +15,7 @@ and open the template in the editor.
 .accordion-toggle {
     cursor: pointer;
 }
+
+.card-body {
+    overflow-x: auto;
+}
